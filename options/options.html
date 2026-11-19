@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B站学习陪伴 · 统计详情</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="page">
+    <!-- 顶部 -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <div class="brand-name">B站学习陪伴</div>
+          <div class="brand-sub">每一次观看，都算数</div>
+        </div>
+      </div>
+      <div class="top-streak">
+        <span>🔥 连续</span>
+        <strong id="topStreak">0</strong>
+        <span>天 · 最长 <b id="topLongest">0</b> 天</span>
+      </div>
+    </header>
+
+    <!-- 数据总览卡 -->
+    <section class="overview" id="overview">
+      <div class="ov-card"><div class="ov-label">累计观看</div><div class="ov-value" id="ovTotal">0</div><div class="ov-sub">小时</div></div>
+      <div class="ov-card"><div class="ov-label">连续打卡</div><div class="ov-value" id="ovStreak">0</div><div class="ov-sub">天</div></div>
+      <div class="ov-card"><div class="ov-label">完成课程</div><div class="ov-value" id="ovCourses">0</div><div class="ov-sub">门</div></div>
+      <div class="ov-card"><div class="ov-label">完成课节</div><div class="ov-value" id="ovParts">0</div><div class="ov-sub">节</div></div>
+    </section>
+
+    <!-- 周期统计 -->
+    <section class="panel">
+      <div class="panel-head">
+        <div class="tabs" id="periodTabs">
+          <button class="tab active" data-period="day">日</button>
+          <button class="tab" data-period="week">周</button>
+          <button class="tab" data-period="month">月</button>
+        </div>
+        <div class="period-summary" id="periodSummary"></div>
+      </div>
+      <div class="chart-wrap">
+        <svg id="trendChart" viewBox="0 0 900 220" preserveAspectRatio="none" aria-label="观看趋势图"></svg>
+        <div class="chart-empty" id="chartEmpty" style="display:none">这个周期还没有数据</div>
+      </div>
+    </section>
+
+    <!-- 打卡热力图 -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">打卡日历</h2>
+        <div class="legend">
+          <span>少</span>
+          <i class="heat-cell l0"></i><i class="heat-cell l1"></i><i class="heat-cell l2"></i><i class="heat-cell l3"></i><i class="heat-cell l4"></i>
+          <span>多</span>
+        </div>
+      </div>
+      <div class="heatmap-big" id="heatmapBig"></div>
+      <div class="heatmap-months" id="heatmapMonths"></div>
+    </section>
+
+    <!-- 课程进度 -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">课程进度</h2>
+        <span class="panel-hint" id="courseCount"></span>
+      </div>
+      <div id="courseList">
+        <div class="empty-state">还没有课程记录。去 B 站看节课，进度会自动出现在这里。</div>
+      </div>
+    </section>
+
+    <!-- 成就徽章 -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">成就徽章</h2>
+        <span class="panel-hint" id="badgeCount"></span>
+      </div>
+      <div class="badges" id="badgeWall"></div>
+    </section>
+
+    <!-- 底部 -->
+    <footer class="footer">
+      <span class="privacy">🔒 数据仅保存在你的浏览器本地，不会上传</span>
+      <button id="clearBtn" class="btn-danger">清除全部数据</button>
+    </footer>
+  </div>
+
+  <script src="../lib/core.js"></script>
+  <script src="../lib/stats.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

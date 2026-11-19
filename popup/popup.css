@@ -1,0 +1,105 @@
+/* =========================================================================
+ * popup.css —— Light 主题快速看板
+ * ========================================================================= */
+:root {
+  --bg: #ffffff;
+  --panel: #f7f9f8;
+  --border: #e6ebe8;
+  --text: #1f2a26;
+  --muted: #84918b;
+  --green: #23b36d;
+  --green-deep: #12985a;
+  --pink: #fb7299;
+  --heat0: #eef1ef;
+  --heat1: #c7ecd7;
+  --heat2: #8fddb0;
+  --heat3: #4fc586;
+  --heat4: #12985a;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  width: 360px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { padding: 16px 18px 14px; }
+
+/* 顶部 */
+.head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand .dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 4px rgba(35,179,109,.14);
+}
+.brand-name { font-size: 15px; font-weight: 700; letter-spacing: .2px; }
+.streak {
+  display: flex; align-items: baseline; gap: 3px;
+  background: #fff5e9; border: 1px solid #ffe3bf;
+  padding: 4px 10px; border-radius: 20px;
+}
+.streak .fire { font-size: 13px; }
+.streak-num { font-size: 16px; font-weight: 800; color: #e07b00; }
+.streak-unit { font-size: 11px; color: #b98348; }
+
+/* 三个数字 */
+.metrics { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.metric {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 10px;
+}
+.metric-primary { background: linear-gradient(135deg, #eaf9f0, #f2fbf6); border-color: #cfeedd; }
+.metric-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+.metric-value { font-size: 22px; font-weight: 800; line-height: 1; color: var(--text); }
+.metric-primary .metric-value { color: var(--green-deep); }
+.metric-value .unit { font-size: 11px; font-weight: 600; margin-left: 2px; color: var(--muted); }
+
+/* 区块 */
+.block { margin-bottom: 16px; }
+.block-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+.block-title { font-size: 12px; font-weight: 700; color: #4a564f; }
+.block-hint { font-size: 11px; color: var(--muted); }
+
+/* 迷你热力图：4列（周） x 7行（天），固定小格子 */
+.heatmap-mini {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 14px);
+  grid-auto-columns: 14px;
+  gap: 5px;
+  direction: rtl; /* 让最近的一周显示在右侧 */
+  justify-content: center;
+}
+.heat-cell {
+  width: 14px; height: 14px;
+  border-radius: 3px;
+  background: var(--heat0);
+}
+.heat-cell.l1 { background: var(--heat1); }
+.heat-cell.l2 { background: var(--heat2); }
+.heat-cell.l3 { background: var(--heat3); }
+.heat-cell.l4 { background: var(--heat4); }
+.heat-cell.future { background: #fafbfb; }
+
+/* 当前课程 */
+#currentCourse { }
+.course-row { display: flex; flex-direction: column; gap: 7px; }
+.course-name { font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.course-bar { height: 8px; background: var(--heat0); border-radius: 6px; overflow: hidden; }
+.course-bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--green-deep)); border-radius: 6px; }
+.course-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+.course-empty { font-size: 12px; color: var(--muted); padding: 10px 0; }
+
+/* 底部按钮 */
+.foot { margin-top: 4px; }
+.btn-primary {
+  width: 100%; padding: 10px; border: none; border-radius: 10px;
+  background: var(--green); color: #fff; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: background .15s;
+}
+.btn-primary:hover { background: var(--green-deep); }

@@ -1,0 +1,12 @@
+# WorkBuddy 会话数据（本地记忆，不上传）
+.workbuddy/
+
+# 临时预览与截图
+_preview*.html
+_*.png
+*.log
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini

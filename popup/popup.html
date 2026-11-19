@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>B站学习陪伴</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="wrap">
+    <!-- 顶部 -->
+    <header class="head">
+      <div class="brand">
+        <span class="dot"></span>
+        <span class="brand-name">B站学习陪伴</span>
+      </div>
+      <div class="streak" id="streakBox" title="连续打卡">
+        <span class="fire">🔥</span>
+        <span class="streak-num" id="streakNum">0</span>
+        <span class="streak-unit">天</span>
+      </div>
+    </header>
+
+    <!-- 三个核心数字 -->
+    <section class="metrics">
+      <div class="metric metric-primary">
+        <div class="metric-label">今日观看</div>
+        <div class="metric-value" id="todayVal">0<span class="unit">分钟</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">本周</div>
+        <div class="metric-value" id="weekVal">0<span class="unit">min</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">本月</div>
+        <div class="metric-value" id="monthVal">0<span class="unit">min</span></div>
+      </div>
+    </section>
+
+    <!-- 迷你热力图 -->
+    <section class="block">
+      <div class="block-head">
+        <span class="block-title">最近 4 周打卡</span>
+        <span class="block-hint" id="checkinHint"></span>
+      </div>
+      <div class="heatmap-mini" id="heatmapMini"></div>
+    </section>
+
+    <!-- 当前课程进度 -->
+    <section class="block" id="courseBlock">
+      <div class="block-head">
+        <span class="block-title">最近学习</span>
+        <span class="block-hint" id="courseHint"></span>
+      </div>
+      <div id="currentCourse">
+        <div class="course-empty">还没有学习记录，去 B 站看节课吧～</div>
+      </div>
+    </section>
+
+    <!-- 底部操作 -->
+    <footer class="foot">
+      <button id="openOptions" class="btn-primary">查看完整统计 →</button>
+    </footer>
+  </div>
+
+  <script src="../lib/core.js"></script>
+  <script src="../lib/stats.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
