@@ -59,6 +59,15 @@ body {
 .metric-primary .metric-value { color: var(--green-deep); }
 .metric-value .unit { font-size: 11px; font-weight: 600; margin-left: 2px; color: var(--muted); }
 
+/* 计时口径说明 */
+.metric-note {
+  margin: -6px 0 14px;
+  font-size: 10.5px;
+  color: var(--muted);
+  text-align: center;
+  letter-spacing: .1px;
+}
+
 /* 区块 */
 .block { margin-bottom: 16px; }
 .block-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }

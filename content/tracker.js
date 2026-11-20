@@ -1,9 +1,9 @@
 /* =========================================================================
- * tracker.js —— 播放心跳与有效时长累计（注入在页面上下文）
- * 核心：按"真实墙钟秒数"累计，而非 currentTime 差值。
- *  - 2倍速看30分钟视频只记15分钟真实时间（防倍速双计）
- *  - 拖动/跳转不计时长，也不计入 maxPosition（防"拖到结尾秒通关"）
- *  - 暂停/缓冲/切后台 断开锚点不计时
+ * tracker.js —— 播放心跳与观看进度累计（注入在页面上下文）
+ * 核心：按"视频内容进度"累计（currentTime 的增量），而非真实墙钟秒数。
+ *  - 3 倍速播 1 秒真实时间 = 记 3 秒内容进度；0.5 倍速播 1 秒 = 记 0.5 秒
+ *  - 暂停/缓冲/切后台 不产生 currentTime 增量，自然不计时
+ *  - 拖动/跳转不算进度（先被判为 seek 丢弃），防"拖到结尾秒通关"
  * 依赖 core.js、detector.js。
  * ========================================================================= */
 (function () {
@@ -106,16 +106,18 @@
     }
 
     const wall = (now - anchor.t) / 1000;          // 真实经过秒数
-    const step = cur - anchor.cur;                 // 视频时间增量
+    const step = cur - anchor.cur;                 // 视频时间增量（已含倍速）
     const expected = wall * rate;                  // 正常应增量
     const isSeek = step < -0.5 || Math.abs(step - expected) > (SEEK_TOL + wall * 0.5);
 
-    if (!isSeek && wall > 0 && wall < 3) {
-      buffer.seconds += wall;
-      // maxPosition：连续播放到达的最远位置（估算当前位置，不含跳转）
-      const reach = anchor.cur + expected;
-      if (reach > buffer.maxPosition && reach <= (v.duration || Infinity) + 1) {
-        buffer.maxPosition = reach;
+    if (!isSeek && wall > 0 && wall < 3 && step > 0) {
+      // 【进度口径】直接累加视频时间增量：3 倍速 1 秒真实时间 = 3 秒内容进度。
+      // 上限用 expected + 1.5 兜底，防止个别播放器瞬间跳帧把数字冲高。
+      const gained = Math.min(step, expected + 1.5);
+      buffer.seconds += gained;
+      // maxPosition：连续播放到达的最远位置（seek 已被排除，不会靠拖动拉满）
+      if (cur > buffer.maxPosition && cur <= (v.duration || Infinity) + 1) {
+        buffer.maxPosition = cur;
       }
       if (buffer.meta) buffer.meta.duration = v.duration || buffer.meta.duration;
       if (buffer.seconds >= FLUSH_AT) flush('threshold');
