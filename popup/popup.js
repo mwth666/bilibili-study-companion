@@ -38,6 +38,8 @@
     const checkinCount = Object.keys(data[K.CHECKINS] || {}).filter(function (k) { return data[K.CHECKINS][k]; }).length;
     $('checkinHint').textContent = '累计打卡 ' + checkinCount + ' 天';
 
+    renderLast(data[K.LAST]);
+
     // 最近学习课程（按 updatedAt 排）
     const courses = Stats.courses(data);
     const box = $('currentCourse');
@@ -58,6 +60,26 @@
         '</div>' +
       '</div>';
     $('courseHint').textContent = '共 ' + courses.length + ' 门';
+  }
+
+  /** 渲染"最近记录"自检行：能直接看出计时是否还在工作 */
+  function renderLast(last) {
+    const el = $('lastNote');
+    if (!el) return;
+    if (!last || !last.at) {
+      el.textContent = '最近记录：暂无 · 打开一个 B 站视频播几秒试试';
+      el.className = 'metric-note metric-note-sub warn';
+      return;
+    }
+    const ago = Math.max(0, Math.round((Date.now() - last.at) / 1000));
+    let when;
+    if (ago < 60) when = ago + ' 秒前';
+    else if (ago < 3600) when = Math.floor(ago / 60) + ' 分钟前';
+    else if (ago < 86400) when = Math.floor(ago / 3600) + ' 小时前';
+    else when = Math.floor(ago / 86400) + ' 天前';
+    const add = last.seconds ? ' +' + (Math.round(last.seconds * 10) / 10) + 's' : '';
+    el.textContent = '最近记录：' + when + add;
+    el.className = 'metric-note metric-note-sub' + (ago > 600 ? ' warn' : '');
   }
 
   function escapeHtml(s) {
@@ -87,7 +109,12 @@
     });
   }
 
-  getAll().then(render);
+  function refresh() {
+    return getAll().then(render).catch(function (e) { console.warn('[BiliCompanion] popup render error', e); });
+  }
+  refresh();
+  // 打开 popup 时自动跟着数据刷新，方便边看边确认时长在涨
+  setInterval(refresh, 2000);
 
   $('openOptions').addEventListener('click', function () {
     chrome.runtime.openOptionsPage();

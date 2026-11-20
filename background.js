@@ -13,9 +13,13 @@ importScripts('lib/core.js', 'lib/store.js', 'lib/stats.js');
   const Store = BiliLib.Store;
   const Stats = BiliLib.Stats;
 
-  // 多标签去重：记住最近一次上报的 tabId；同一时刻只有活跃 tab 的数据计入。
-  // 该变量随 SW 生命周期存在，SW 重启后清空（可接受：重启期间短暂可能双计）。
+  // 多标签去重：记住"最近上报过"的 tabId 与时间戳；只有别的 tab 在最近几秒内
+  // 才刚上报过，才把新来的数据当作并发的第二路播放丢弃。
+  // 早期实现只比 tabId 不比较时间，导致换了标签页（或新开窗口）后新 tab 的上报
+  // 被永久忽略，表现为"看视频时长不再增加"——这里必须带上时间窗口。
   let activeTabId = null;
+  let activeTabAt = 0;
+  const OTHER_TAB_GRACE_MS = 4000;
 
   chrome.runtime.onInstalled.addListener(function () {
     Store.ensureInit();
@@ -29,21 +33,25 @@ importScripts('lib/core.js', 'lib/store.js', 'lib/stats.js');
     if (!payload || !payload.meta || !payload.meta.key) return;
     const meta = payload.meta;
     const seconds = Math.max(0, Number(payload.seconds) || 0);
-    if (seconds <= 0) return;
+    const maxPositionIn = Math.max(0, Number(payload.maxPosition) || 0);
+    // 秒数为 0 但带来进度信息（例如刚好看完结尾）也要处理，其余空上报直接丢
+    if (seconds <= 0 && maxPositionIn <= 0) return;
 
-    // 多标签去重：若已有活跃 tab 且不是当前，忽略（只认最后活跃的）
+    // 多标签去重：别的 tab 在极短时间内（<4s）刚报过，才认为是同一时刻两路播放
     const tabId = sender && sender.tab ? sender.tab.id : null;
     if (tabId != null) {
-      if (activeTabId != null && activeTabId !== tabId) {
-        BiliLib.log('忽略非活跃 tab 上报', tabId, 'active=', activeTabId);
+      const nowTs = Date.now();
+      if (activeTabId != null && activeTabId !== tabId && nowTs - activeTabAt < OTHER_TAB_GRACE_MS) {
+        BiliLib.log('忽略并发的另一路播放上报', tabId, 'active=', activeTabId);
         return;
       }
       activeTabId = tabId;
+      activeTabAt = nowTs;
     }
 
     const dayKey = BiliLib.dayKey();
     const lessonKey = meta.key;
-    const maxPosition = Math.max(0, Number(payload.maxPosition) || 0);
+    const maxPosition = maxPositionIn;
     const duration = Math.max(0, Number(meta.duration) || 0);
     const completed = duration > 0 && (maxPosition / duration >= 0.95);
 
@@ -151,6 +159,15 @@ importScripts('lib/core.js', 'lib/store.js', 'lib/stats.js');
     await Store.set(K.CHECKINS, checkins);
     await Store.set(K.STREAK, streak);
     await Store.set(K.BADGES, badges);
+    // 自检用：记录最近一次成功落库的时间与内容，popup 会显示"最近记录 xx 前"
+    await Store.set(K.LAST, {
+      at: Date.now(),
+      seconds: seconds,
+      lessonKey: lessonKey,
+      title: lesson.title || meta.title || '',
+      duration: lesson.duration || duration,
+      maxPosition: lesson.maxPosition || maxPosition
+    });
 
     if (justCompleted) BiliLib.log('完成分P', lessonKey);
   }

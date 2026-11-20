@@ -68,6 +68,21 @@ body {
   letter-spacing: .1px;
 }
 
+/* 最近记录自检行 */
+.metric-note-sub {
+  margin: -10px 0 14px;
+  font-size: 10px;
+  color: var(--muted);
+  opacity: .85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.metric-note-sub.warn {
+  color: #e8734a;
+  opacity: 1;
+}
+
 /* 区块 */
 .block { margin-bottom: 16px; }
 .block-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }

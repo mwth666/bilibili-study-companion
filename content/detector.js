@@ -30,12 +30,47 @@
     return '';
   }
 
+  /** 元素是否真的显示在页面上（排除隐藏的小窗/预览/占位 video） */
+  function isVisible(el) {
+    if (!el) return false;
+    let rect;
+    try { rect = el.getBoundingClientRect(); } catch (e) { return true; }
+    if (rect.width < 40 || rect.height < 30) return false;
+    try {
+      const cs = window.getComputedStyle(el);
+      if (!cs) return true;
+      if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+      if (parseFloat(cs.opacity) === 0) return false;
+    } catch (e) { /* 忽略样式读取失败 */ }
+    return true;
+  }
+  Detector.isVisible = isVisible;
+
+  /**
+   * 列出所有"可能是主播放器"的 video：时长有效 + 可见。
+   * 进度口径依赖 currentTime 的增量，若误取到隐藏/静止的 video，
+   * 增量恒为 0 会导致整段时间都不计时，所以这里必须做可见性过滤。
+   * 若过滤后为空，退回"所有时长有效的 video"，宁可选中也不要不计。
+   */
+  Detector.listVideos = function () {
+    const all = Array.prototype.slice.call(document.querySelectorAll('video'));
+    const valid = all.filter(function (el) {
+      return el && isFinite(el.duration) && el.duration > 0;
+    });
+    if (!valid.length) return [];
+    const visible = valid.filter(isVisible);
+    return visible.length ? visible : valid;
+  };
+
   /** 找到真正在用的 <video>（可能有多个，取有 duration 且最像播放器的） */
   Detector.pickVideo = function () {
-    let videos = Array.prototype.slice.call(document.querySelectorAll('video'));
-    // 优先取有有效 duration 的
-    let v = videos.find(function (el) { return el.duration > 0 && isFinite(el.duration); });
-    if (v) return v;
+    const list = Detector.listVideos();
+    if (list.length) {
+      // 优先正在播放的那个
+      const playing = list.find(function (el) { return !el.paused && !el.ended; });
+      return playing || list[0];
+    }
+    const videos = Array.prototype.slice.call(document.querySelectorAll('video'));
     return videos[0] || null;
   };
 

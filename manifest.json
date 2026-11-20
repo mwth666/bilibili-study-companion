@@ -1,9 +1,11 @@
 {
   "manifest_version": 3,
   "name": "B站学习陪伴",
-  "version": "1.1.0",
-  "description": "记录你在 B 站网课的观看进度（按时长进度计，倍速算多）与课程完成度，用打卡日历和成就激励坚持。数据仅保存在本地。",
-  "permissions": ["storage"],
+  "version": "1.2.0",
+  "description": "记录你在 B 站网课的观看进度（按内容进度计时，倍速算多）与课程完成度，用打卡日历和成就激励坚持。数据仅保存在本地。",
+  "permissions": [
+    "storage"
+  ],
   "host_permissions": [
     "https://www.bilibili.com/*",
     "https://m.bilibili.com/*"
@@ -13,7 +15,10 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.bilibili.com/video/*"],
+      "matches": [
+        "https://www.bilibili.com/*",
+        "https://m.bilibili.com/*"
+      ],
       "js": [
         "lib/core.js",
         "content/detector.js",
