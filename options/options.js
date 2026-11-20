@@ -237,6 +237,69 @@
         getAll().then(function (data) { state.data = data; renderAll(); });
       });
     });
+
+    // ---------- 与手机 App 合并 ----------
+    $('exportBtn').addEventListener('click', function () {
+      const payload = {};
+      ['DAILY', 'LESSONS', 'COURSES', 'CHECKINS', 'STREAK', 'BADGES'].forEach(function (name) {
+        payload[K[name]] = state.data[K[name]] || {};
+      });
+      const json = JSON.stringify(payload, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bili-study-' + BiliLib.dayKey() + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    });
+
+    $('importBtn').addEventListener('click', function () { $('importFile').click(); });
+    $('importFile').addEventListener('change', function (e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function () {
+        let incoming;
+        try { incoming = JSON.parse(reader.result); }
+        catch (err) { window.alert('JSON 解析失败：' + err.message); return; }
+        if (!incoming || typeof incoming !== 'object') { window.alert('文件内容不对'); return; }
+
+        const addSeconds = function (dst, src) {
+          const out = Object.assign({}, dst);
+          Object.keys(src || {}).forEach(function (k) {
+            const a = out[k] || { seconds: 0, lessonKeys: [], updatedAt: 0 };
+            const b = src[k] || {};
+            const lk = (a.lessonKeys || []).slice();
+            (b.lessonKeys || []).forEach(function (key) { if (lk.indexOf(key) === -1) lk.push(key); });
+            out[k] = {
+              seconds: Math.round(((a.seconds || 0) + (b.seconds || 0)) * 10) / 10,
+              lessonKeys: lk,
+              updatedAt: Math.max(a.updatedAt || 0, b.updatedAt || 0)
+            };
+          });
+          return out;
+        };
+
+        const d = state.data;
+        const merged = {
+          [K.DAILY]: addSeconds(d[K.DAILY], incoming[K.DAILY]),
+          [K.LESSONS]: Object.assign({}, d[K.LESSONS] || {}, incoming[K.LESSONS] || {}),
+          [K.CHECKINS]: Object.assign({}, d[K.CHECKINS] || {}, incoming[K.CHECKINS] || {}),
+          [K.STREAK]: incoming[K.STREAK] && (incoming[K.STREAK].longest || 0) > (d[K.STREAK] || {}).longest
+            ? incoming[K.STREAK] : d[K.STREAK],
+          [K.BADGES]: Object.assign({}, d[K.BADGES] || {}, incoming[K.BADGES] || {})
+        };
+        chrome.storage.local.set(merged, function () {
+          getAll().then(function (data) { state.data = data; renderAll(); });
+          window.alert('合并完成');
+        });
+      };
+      reader.readAsText(file, 'utf-8');
+      e.target.value = '';
+    });
   }
 
   getAll().then(function (data) {

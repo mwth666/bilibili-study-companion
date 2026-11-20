@@ -82,6 +82,20 @@
       <div class="badges" id="badgeWall"></div>
     </section>
 
+    <!-- 数据合并 -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">与手机 App 合并数据</h2>
+        <span class="panel-hint">无需账号，手动导出/导入</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button id="exportBtn" class="btn-primary" style="padding:8px 14px;">导出 JSON</button>
+        <button id="importBtn" class="btn-primary" style="padding:8px 14px;">导入手机数据</button>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+        <span style="font-size:12px;color:var(--muted);">导出的文件传到手机，在 App 里点「导入电脑数据」；反之亦然。</span>
+      </div>
+    </section>
+
     <!-- 底部 -->
     <footer class="footer">
       <span class="privacy">🔒 数据仅保存在你的浏览器本地，不会上传</span>
